@@ -1,4 +1,3 @@
-import React from 'react';
 import { Provider } from 'react-redux';
 import LinkedListAnimation from './components/LinkedListAnimation';
 import { store } from './store';
