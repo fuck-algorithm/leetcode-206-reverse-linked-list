@@ -27,7 +27,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci # Use ci for faster, more reliable installs in CI
+        run: npm install # 使用 install 而不是 ci，避免缺少锁文件错误
 
       # Attempt to install problematic dependencies with flags if needed
       - name: Install potentially problematic dependencies
