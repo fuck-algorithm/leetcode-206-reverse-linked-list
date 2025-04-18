@@ -16,16 +16,16 @@ import '../styles/LinkedListAnimation.css';
 
 const LinkedListAnimation: React.FC = () => {
   const dispatch = useDispatch();
-  const { isPlaying, animationSpeed, animationMethod } = useSelector(
-    (state: RootState) => state.animation
-  );
+  const animation = useSelector((state: RootState) => state.animation);
+  const { isPlaying, animationSpeed, animationMethod } = animation;
   
   // 创建动画控制器引用
   const controllerRef = useRef<AnimationController | null>(null);
   
   // 初始化动画控制器
   useEffect(() => {
-    const getState = () => ({ animation: useSelector((state: RootState) => state.animation) });
+    // 使用闭包获取当前组件内的animation状态，而不是在函数中调用Hook
+    const getState = () => ({ animation });
     controllerRef.current = new AnimationController(dispatch, getState);
     
     // 加载示例数据
@@ -37,7 +37,7 @@ const LinkedListAnimation: React.FC = () => {
         controllerRef.current.stopAnimation();
       }
     };
-  }, [dispatch]);
+  }, [dispatch, animation]);
   
   // 监听播放状态变化
   useEffect(() => {
