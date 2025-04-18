@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as d3 from 'd3';
 import { RootState } from '../store';
 import ListNode from './ListNode';
@@ -23,7 +23,6 @@ const AnimationCanvas: React.FC<AnimationCanvasProps> = ({
   const { currentNodeData, pointers, animationMethod, callStack } = useSelector(
     (state: RootState) => state.animation
   );
-  const dispatch = useDispatch();
   const [canvasReady, setCanvasReady] = useState(false);
 
   // 初始化D3画布
@@ -41,7 +40,7 @@ const AnimationCanvas: React.FC<AnimationCanvasProps> = ({
     if (!canvasReady || currentNodeData.length === 0) return;
 
     // 更新节点位置
-    const updatedNodes = currentNodeData.map((node, index) => {
+    currentNodeData.forEach((node, index) => {
       // 计算初始位置
       let x = 60 + index * nodeSpacing;
       let y = 200;
@@ -61,10 +60,8 @@ const AnimationCanvas: React.FC<AnimationCanvasProps> = ({
         }
       }
 
-      return {
-        ...node,
-        position: { x, y }
-      };
+      // 直接修改节点位置
+      node.position = { x, y };
     });
 
     return () => {
