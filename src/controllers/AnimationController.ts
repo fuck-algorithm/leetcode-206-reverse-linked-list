@@ -19,19 +19,16 @@ export class AnimationController {
   private animationInterval: number | null = null;
   private currentStepIndex = 0;
   private dispatch: Dispatch;
-  private getState: () => { animation: AnimationState };
 
-  constructor(dispatch: Dispatch, getState: () => { animation: AnimationState }) {
+  constructor(dispatch: Dispatch) {
     this.dispatch = dispatch;
-    this.getState = getState;
   }
 
   /**
    * 加载链表数据并生成动画事件
    * @param nodes 链表节点数据
    */
-  public loadData(nodes: ListNodeData[]): void {
-    const { animationMethod } = this.getState().animation;
+  public loadData(nodes: ListNodeData[], animationMethod: 'iterative' | 'recursive'): void {
     
     // 根据选择的方法生成动画事件
     this.events = animationMethod === 'iterative'
@@ -49,10 +46,8 @@ export class AnimationController {
   /**
    * 开始动画播放
    */
-  public startAnimation(): void {
-    const { isPlaying, animationSpeed } = this.getState().animation;
-    
-    if (isPlaying && this.animationInterval !== null) {
+  public startAnimation(animationSpeed: number): void {
+    if (this.animationInterval !== null) {
       return;
     }
     
@@ -145,14 +140,13 @@ export class AnimationController {
   /**
    * 更改播放速度
    * @param speed 播放速度
+   * @param isPlaying 当前是否正在播放
    */
-  public changeSpeed(speed: number): void {
-    const { isPlaying } = this.getState().animation;
-    
+  public changeSpeed(speed: number, isPlaying: boolean): void {
     if (isPlaying) {
       // 如果正在播放，需要重新启动动画
       this.stopAnimation();
-      this.startAnimation();
+      this.startAnimation(speed);
     }
   }
 } 

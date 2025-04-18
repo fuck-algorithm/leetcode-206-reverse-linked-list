@@ -24,38 +24,37 @@ const LinkedListAnimation: React.FC = () => {
   
   // 初始化动画控制器
   useEffect(() => {
-    // 使用闭包获取当前组件内的animation状态，而不是在函数中调用Hook
-    const getState = () => ({ animation });
-    controllerRef.current = new AnimationController(dispatch, getState);
+    // 简化控制器创建，不再依赖getState函数
+    controllerRef.current = new AnimationController(dispatch);
     
     // 加载示例数据
     const initialNodes = generateLinkedList(5);
-    controllerRef.current.loadData(initialNodes);
+    controllerRef.current.loadData(initialNodes, animationMethod);
     
     return () => {
       if (controllerRef.current) {
         controllerRef.current.stopAnimation();
       }
     };
-  }, [dispatch, animation]);
+  }, [dispatch, animationMethod]);
   
   // 监听播放状态变化
   useEffect(() => {
     if (!controllerRef.current) return;
     
     if (isPlaying) {
-      controllerRef.current.startAnimation();
+      controllerRef.current.startAnimation(animationSpeed);
     } else {
       controllerRef.current.stopAnimation();
     }
-  }, [isPlaying]);
+  }, [isPlaying, animationSpeed]);
   
   // 监听速度变化
   useEffect(() => {
     if (!controllerRef.current) return;
     
-    controllerRef.current.changeSpeed(animationSpeed);
-  }, [animationSpeed]);
+    controllerRef.current.changeSpeed(animationSpeed, isPlaying);
+  }, [animationSpeed, isPlaying]);
   
   // 监听算法方法变化
   useEffect(() => {
@@ -63,7 +62,7 @@ const LinkedListAnimation: React.FC = () => {
     
     // 重新加载数据
     const nodes = generateLinkedList(5);
-    controllerRef.current.loadData(nodes);
+    controllerRef.current.loadData(nodes, animationMethod);
   }, [animationMethod]);
   
   const handleSpeedChange = (speed: number) => {
