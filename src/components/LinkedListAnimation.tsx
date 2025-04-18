@@ -8,8 +8,6 @@ import { generateLinkedList } from '../utils/dataGenerator';
 import {
   startAnimation,
   pauseAnimation,
-  stepForward,
-  stepBackward,
   resetAnimation,
   setAnimationSpeed,
   setAnimationMethod
@@ -68,34 +66,6 @@ const LinkedListAnimation: React.FC = () => {
     controllerRef.current.loadData(nodes);
   }, [animationMethod]);
   
-  // 处理动画控制
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      dispatch(pauseAnimation());
-    } else {
-      dispatch(startAnimation());
-    }
-  };
-  
-  const handleStepForward = () => {
-    if (controllerRef.current) {
-      controllerRef.current.stepForward();
-    }
-  };
-  
-  const handleStepBackward = () => {
-    if (controllerRef.current) {
-      controllerRef.current.stepBackward();
-    }
-  };
-  
-  const handleReset = () => {
-    if (controllerRef.current) {
-      controllerRef.current.resetAnimation();
-      dispatch(resetAnimation());
-    }
-  };
-  
   const handleSpeedChange = (speed: number) => {
     dispatch(setAnimationSpeed(speed));
   };
@@ -118,7 +88,11 @@ const LinkedListAnimation: React.FC = () => {
         <AnimationCanvas width={800} height={400} />
       </div>
       
-      <ControlPanel className="animation-controls" />
+      <ControlPanel 
+        className="animation-controls"
+        onSpeedChange={handleSpeedChange}
+        onMethodChange={handleMethodChange}
+      />
       
       <div className="animation-info">
         <div className="algorithm-description">
