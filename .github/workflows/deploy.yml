@@ -1,0 +1,53 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Or your default branch name
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20' # Or your preferred Node.js version
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci # Use ci for faster, more reliable installs in CI
+
+      # Attempt to install problematic dependencies with flags if needed
+      - name: Install potentially problematic dependencies
+        run: |
+          npm install d3 @types/d3 --legacy-peer-deps || echo "Failed to install d3, continuing..."
+          npm install @reduxjs/toolkit react-redux --legacy-peer-deps || echo "Failed to install redux, continuing..."
+          npm install gh-pages --save-dev --legacy-peer-deps || echo "Failed to install gh-pages, continuing..."
+          npm install redux --legacy-peer-deps || echo "Failed to install redux core, continuing..."
+
+      - name: Build project
+        run: npm run build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4 
