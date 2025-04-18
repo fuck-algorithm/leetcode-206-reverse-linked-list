@@ -25,6 +25,7 @@ jobs:
         with:
           node-version: '20' # Or your preferred Node.js version
           cache: 'npm'
+          cache-dependency-path: 'package.json' # 使用 package.json 作为缓存依赖路径，避免因缺少锁文件报错
 
       - name: Install dependencies
         run: npm install # 使用 install 而不是 ci，避免缺少锁文件错误
