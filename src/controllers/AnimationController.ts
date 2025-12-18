@@ -3,13 +3,17 @@ import {
   setCurrentNodeData,
   setPointers,
   setTotalSteps,
+  startAnimation,
   pauseAnimation,
-  pushCallStack,
-  popCallStack
+  setCallStack,
+  stepForward,
+  stepBackward,
+  setStepDescription,
+  setCurrentEventType
 } from '../store/animationSlice';
 import { generateIterativeReverseEvents } from '../algorithms/IterativeReverse';
 import { generateRecursiveReverseEvents } from '../algorithms/RecursiveReverse';
-import { AnimationEvent, ListNodeData, AnimationState } from '../types';
+import { AnimationEvent, ListNodeData } from '../types';
 
 /**
  * 动画控制器类
@@ -51,6 +55,9 @@ export class AnimationController {
       return;
     }
     
+    // 更新 Redux state 中的播放状态
+    this.dispatch(startAnimation());
+    
     // 计算动画间隔时间
     const intervalTime = Math.round(1000 / animationSpeed);
     
@@ -82,6 +89,7 @@ export class AnimationController {
     if (this.currentStepIndex < this.events.length - 1) {
       this.currentStepIndex++;
       this.applyEvent(this.events[this.currentStepIndex]);
+      this.dispatch(stepForward());
     }
   }
 
@@ -92,6 +100,7 @@ export class AnimationController {
     if (this.currentStepIndex > 0) {
       this.currentStepIndex--;
       this.applyEvent(this.events[this.currentStepIndex]);
+      this.dispatch(stepBackward());
     }
   }
 
@@ -101,6 +110,9 @@ export class AnimationController {
    */
   private applyEvent(event: AnimationEvent): void {
     const { data } = event;
+    
+    // 更新当前事件类型（用于代码行高亮）
+    this.dispatch(setCurrentEventType(event.type));
     
     // 更新节点数据
     if (data.nodes) {
@@ -112,16 +124,14 @@ export class AnimationController {
       this.dispatch(setPointers(data.pointers));
     }
     
-    // 处理调用栈相关事件
-    if (event.type === 'RECURSIVE_CALL' && data.callStack) {
-      // 递归调用时更新调用栈
-      const latestFrame = data.callStack[data.callStack.length - 1];
-      if (latestFrame && latestFrame.params) {
-        this.dispatch(pushCallStack(latestFrame.params));
-      }
-    } else if (event.type === 'RECURSIVE_RETURN' && data.callStack) {
-      // 递归返回时更新调用栈
-      this.dispatch(popCallStack({ returnValue: data.pointers.newHead }));
+    // 更新步骤描述
+    if (data.description) {
+      this.dispatch(setStepDescription(data.description));
+    }
+    
+    // 直接设置完整的调用栈状态（支持前进和后退）
+    if (data.callStack !== undefined) {
+      this.dispatch(setCallStack(data.callStack));
     }
   }
 
@@ -135,6 +145,10 @@ export class AnimationController {
     if (this.events.length > 0) {
       this.applyEvent(this.events[0]);
     }
+    
+    // 重置 Redux state 中的 currentStep 为 0
+    // 通过多次调用 stepBackward 来确保重置到 0
+    // 由于 resetAnimation action 会重置 currentStep，这里不需要额外操作
   }
 
   /**
@@ -147,6 +161,17 @@ export class AnimationController {
       // 如果正在播放，需要重新启动动画
       this.stopAnimation();
       this.startAnimation(speed);
+    }
+  }
+
+  /**
+   * 跳转到指定步骤
+   * @param step 目标步骤
+   */
+  public goToStep(step: number): void {
+    if (step >= 0 && step < this.events.length) {
+      this.currentStepIndex = step;
+      this.applyEvent(this.events[step]);
     }
   }
 } 

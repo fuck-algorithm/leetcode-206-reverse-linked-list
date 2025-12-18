@@ -29,6 +29,8 @@ export interface AnimationState {
       head: number | null;
     };
   }>;
+  stepDescription?: string; // 当前步骤的文字说明
+  currentEventType?: string; // 当前事件类型，用于代码行高亮
 }
 
 // 动画控制操作类型
@@ -52,9 +54,27 @@ export enum AnimationPhase {
   COMPLETE = 'complete',
 }
 
+// 动画事件数据类型
+export interface AnimationEventData {
+  nodes?: ListNodeData[];
+  pointers?: {
+    prev?: number | null;
+    curr?: number | null;
+    next?: number | null;
+    newHead?: number | null;
+  };
+  callStack?: Array<{
+    params: { head: number | null };
+    returnValue: number | null;
+  }>;
+  description?: string;
+  currentNode?: number | null;
+  reversedNode?: number | null;
+}
+
 // 动画事件类型
 export interface AnimationEvent {
   type: string;
-  data: any;
+  data: AnimationEventData;
   timestamp: number;
 } 

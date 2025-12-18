@@ -1,0 +1,94 @@
+.page-container {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 50px);
+  padding: 12px;
+  box-sizing: border-box;
+  background-color: #f5f5f5;
+  overflow: hidden;
+  gap: 8px;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.page-header h2 {
+  margin: 0 0 4px 0;
+  color: #2c3e50;
+  font-size: 1.3em;
+}
+
+.page-header p {
+  margin: 0;
+  color: #546e7a;
+  font-size: 0.9em;
+}
+
+.animation-area {
+  flex: 1;
+  min-height: 200px;
+  max-height: calc(100vh - 550px);
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.page-controls {
+  flex-shrink: 0;
+}
+
+.code-section {
+  background: white;
+  border-radius: 8px;
+  padding: 10px 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.code-section h3 {
+  margin: 0 0 8px 0;
+  font-size: 0.95em;
+  color: #2c3e50;
+  border-bottom: 1px solid #e0e0e0;
+  padding-bottom: 6px;
+}
+
+.code-section pre {
+  margin: 0;
+  font-family: 'Consolas', 'Monaco', monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+/* 步骤描述样式 */
+.step-description {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+  border: 1px solid #bbdefb;
+  border-radius: 8px;
+  padding: 12px 16px;
+  min-height: 24px;
+  flex-shrink: 0;
+}
+
+.step-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.step-text {
+  font-size: 14px;
+  color: #1565c0;
+  font-weight: 500;
+  line-height: 1.4;
+}

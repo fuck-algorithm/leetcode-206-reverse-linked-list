@@ -15,7 +15,9 @@ const initialState: AnimationState = {
     next: null,
     newHead: null
   },
-  callStack: []
+  callStack: [],
+  stepDescription: '',
+  currentEventType: ''
 };
 
 // 创建动画状态切片
@@ -23,23 +25,23 @@ export const animationSlice = createSlice({
   name: 'animation',
   initialState,
   reducers: {
-    startAnimation: (state) => {
+    startAnimation: (state: AnimationState) => {
       state.isPlaying = true;
     },
-    pauseAnimation: (state) => {
+    pauseAnimation: (state: AnimationState) => {
       state.isPlaying = false;
     },
-    stepForward: (state) => {
+    stepForward: (state: AnimationState) => {
       if (state.currentStep < state.totalSteps) {
         state.currentStep += 1;
       }
     },
-    stepBackward: (state) => {
+    stepBackward: (state: AnimationState) => {
       if (state.currentStep > 0) {
         state.currentStep -= 1;
       }
     },
-    resetAnimation: (state) => {
+    resetAnimation: (state: AnimationState) => {
       state.currentStep = 0;
       state.isPlaying = false;
       state.pointers = {
@@ -49,11 +51,12 @@ export const animationSlice = createSlice({
         newHead: null
       };
       state.callStack = [];
+      state.stepDescription = '';
     },
-    setAnimationSpeed: (state, action: PayloadAction<number>) => {
+    setAnimationSpeed: (state: AnimationState, action: PayloadAction<number>) => {
       state.animationSpeed = action.payload;
     },
-    setAnimationMethod: (state, action: PayloadAction<'iterative' | 'recursive'>) => {
+    setAnimationMethod: (state: AnimationState, action: PayloadAction<'iterative' | 'recursive'>) => {
       state.animationMethod = action.payload;
       state.currentStep = 0;
       state.isPlaying = false;
@@ -65,13 +68,13 @@ export const animationSlice = createSlice({
       };
       state.callStack = [];
     },
-    setCurrentNodeData: (state, action: PayloadAction<ListNodeData[]>) => {
+    setCurrentNodeData: (state: AnimationState, action: PayloadAction<ListNodeData[]>) => {
       state.currentNodeData = action.payload;
     },
-    setTotalSteps: (state, action: PayloadAction<number>) => {
+    setTotalSteps: (state: AnimationState, action: PayloadAction<number>) => {
       state.totalSteps = action.payload;
     },
-    setPointers: (state, action: PayloadAction<{
+    setPointers: (state: AnimationState, action: PayloadAction<{
       prev?: number | null;
       curr?: number | null;
       next?: number | null;
@@ -82,7 +85,7 @@ export const animationSlice = createSlice({
         ...action.payload
       };
     },
-    pushCallStack: (state, action: PayloadAction<{ head: number | null }>) => {
+    pushCallStack: (state: AnimationState, action: PayloadAction<{ head: number | null }>) => {
       if (!state.callStack) {
         state.callStack = [];
       }
@@ -91,7 +94,7 @@ export const animationSlice = createSlice({
         returnValue: null
       });
     },
-    popCallStack: (state, action: PayloadAction<{ returnValue: number | null }>) => {
+    popCallStack: (state: AnimationState, action: PayloadAction<{ returnValue: number | null }>) => {
       if (state.callStack && state.callStack.length > 0) {
         const lastFrame = state.callStack.pop();
         if (lastFrame && state.callStack.length > 0) {
@@ -99,6 +102,18 @@ export const animationSlice = createSlice({
           currentFrame.returnValue = action.payload.returnValue;
         }
       }
+    },
+    setCallStack: (state: AnimationState, action: PayloadAction<Array<{ params: { head: number | null }; returnValue: number | null }>>) => {
+      state.callStack = action.payload;
+    },
+    setStepDescription: (state: AnimationState, action: PayloadAction<string>) => {
+      state.stepDescription = action.payload;
+    },
+    setCurrentEventType: (state: AnimationState, action: PayloadAction<string>) => {
+      state.currentEventType = action.payload;
+    },
+    setCurrentStep: (state: AnimationState, action: PayloadAction<number>) => {
+      state.currentStep = action.payload;
     }
   }
 });
@@ -116,7 +131,11 @@ export const {
   setTotalSteps,
   setPointers,
   pushCallStack,
-  popCallStack
+  popCallStack,
+  setCallStack,
+  setStepDescription,
+  setCurrentEventType,
+  setCurrentStep
 } = animationSlice.actions;
 
 // 导出reducer

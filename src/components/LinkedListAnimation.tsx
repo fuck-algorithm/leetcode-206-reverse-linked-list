@@ -5,13 +5,8 @@ import AnimationCanvas from './AnimationCanvas';
 import ControlPanel from './ControlPanel';
 import { AnimationController } from '../controllers/AnimationController';
 import { generateLinkedList } from '../utils/dataGenerator';
-import {
-  startAnimation,
-  pauseAnimation,
-  resetAnimation,
-  setAnimationSpeed,
-  setAnimationMethod
-} from '../store/animationSlice';
+import { AnimationControllerContext } from '../contexts/AnimationControllerContext';
+
 import '../styles/LinkedListAnimation.css';
 
 const LinkedListAnimation: React.FC = () => {
@@ -65,40 +60,33 @@ const LinkedListAnimation: React.FC = () => {
     controllerRef.current.loadData(nodes, animationMethod);
   }, [animationMethod]);
   
-  const handleSpeedChange = (speed: number) => {
-    dispatch(setAnimationSpeed(speed));
-  };
-  
-  const handleMethodChange = (method: 'iterative' | 'recursive') => {
-    dispatch(setAnimationMethod(method));
-  };
+
   
   return (
-    <div className="linked-list-animation">
-      <h1 className="animation-title">链表反转动画演示</h1>
-      <div className="animation-description">
-        <p>
-          本演示展示了LeetCode 206题 - 反转链表的两种解法：迭代法和递归法。
-          使用下方控制面板调整动画播放，或切换算法实现方式。
-        </p>
-      </div>
-      
-      <div className="animation-container">
-        <AnimationCanvas width={800} height={400} />
-      </div>
-      
-      <ControlPanel 
-        className="animation-controls"
-        onSpeedChange={handleSpeedChange}
-        onMethodChange={handleMethodChange}
-      />
-      
-      <div className="animation-info">
-        <div className="algorithm-description">
-          {animationMethod === 'iterative' ? (
-            <div className="iterative-description">
-              <h3>迭代法实现</h3>
-              <pre>
+    <AnimationControllerContext.Provider value={{ controllerRef }}>
+      <div className="linked-list-animation">
+        <h1 className="animation-title">链表反转动画演示</h1>
+        <div className="animation-description">
+          <p>
+            本演示展示了LeetCode 206题 - 反转链表的两种解法：迭代法和递归法。
+            使用下方控制面板调整动画播放，或切换算法实现方式。
+          </p>
+        </div>
+        
+        <div className="animation-container">
+          <AnimationCanvas />
+        </div>
+        
+        <ControlPanel 
+          className="animation-controls"
+        />
+        
+        <div className="animation-info">
+          <div className="algorithm-description">
+            {animationMethod === 'iterative' ? (
+              <div className="iterative-description">
+                <h3>迭代法实现</h3>
+                <pre>
 {`// 迭代法代码
 var reverseList = function(head) {
     let prev = null;
@@ -113,12 +101,12 @@ var reverseList = function(head) {
     
     return prev;
 };`}
-              </pre>
-            </div>
-          ) : (
-            <div className="recursive-description">
-              <h3>递归法实现</h3>
-              <pre>
+                </pre>
+              </div>
+            ) : (
+              <div className="recursive-description">
+                <h3>递归法实现</h3>
+                <pre>
 {`// 递归法代码
 var reverseList = function(head) {
     if (head === null || head.next === null) {
@@ -131,12 +119,13 @@ var reverseList = function(head) {
     
     return newHead;
 };`}
-              </pre>
-            </div>
-          )}
+                </pre>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-    </div>
+    </AnimationControllerContext.Provider>
   );
 };
 

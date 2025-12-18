@@ -1,14 +1,24 @@
 import { Provider } from 'react-redux';
-import LinkedListAnimation from './components/LinkedListAnimation';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { store } from './store';
+import Navbar from './components/Navbar';
+import IterativePage from './pages/IterativePage';
+import RecursivePage from './pages/RecursivePage';
 import './App.css';
 
 function App() {
   return (
     <Provider store={store}>
-      <div className="App">
-        <LinkedListAnimation />
-      </div>
+      <BrowserRouter basename="/leetcode-206-reverse-linked-list">
+        <div className="App">
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Navigate to="/iterative" replace />} />
+            <Route path="/iterative" element={<IterativePage />} />
+            <Route path="/recursive" element={<RecursivePage />} />
+          </Routes>
+        </div>
+      </BrowserRouter>
     </Provider>
   );
 }

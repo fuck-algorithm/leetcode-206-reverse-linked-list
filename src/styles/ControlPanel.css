@@ -1,0 +1,155 @@
+.control-panel-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.progress-bar-container {
+  width: 100%;
+  padding: 0;
+  margin: 0 0 8px 0;
+}
+
+.progress-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+}
+
+.progress-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4caf50;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+
+.progress-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.progress-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #4caf50;
+  cursor: pointer;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.progress-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.control-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  background: #e8eaf6;
+  padding: 12px 20px;
+  border-radius: 8px;
+  flex-wrap: wrap;
+}
+
+.control-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.control-buttons button {
+  min-width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 8px;
+  background: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 4px 8px;
+  gap: 2px;
+}
+
+.control-buttons button .btn-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.control-buttons button .btn-shortcut {
+  font-size: 9px;
+  opacity: 0.6;
+  font-family: monospace;
+}
+
+.control-buttons button:hover:not(:disabled) {
+  background: #667eea;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.control-buttons button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.control-buttons .play-btn {
+  min-width: 50px;
+  background: #667eea;
+  color: white;
+}
+
+.control-buttons .play-btn:hover {
+  background: #5a6fd6;
+}
+
+.speed-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.speed-control label {
+  font-size: 14px;
+  color: #546e7a;
+  font-weight: 500;
+}
+
+.speed-control input[type="range"] {
+  width: 100px;
+  cursor: pointer;
+}
+
+.speed-control span {
+  font-size: 14px;
+  color: #333;
+  min-width: 30px;
+}
+
+.progress-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.progress-info span {
+  font-size: 13px;
+  color: #546e7a;
+  min-width: 50px;
+}

@@ -45,10 +45,10 @@ const Pointer: React.FC<PointerProps> = ({
       path = `M${sourceX},${sourceY} L${targetX},${targetY}`;
     }
 
-    // 计算箭头方向
-    const dx = targetX - sourceX;
-    const dy = targetY - sourceY;
-    const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+    // 计算箭头方向 (unused but kept for potential future use)
+    // const dx = targetX - sourceX;
+    // const dy = targetY - sourceY;
+    // const angle = Math.atan2(dy, dx) * (180 / Math.PI);
 
     // 更新路径
     arrowPath
@@ -77,7 +77,9 @@ const Pointer: React.FC<PointerProps> = ({
         .ease(d3.easeLinear)
         .attr('stroke-dashoffset', 10)
         .on('end', function repeat() {
-          d3.select(this)
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          const element = this;
+          d3.select(element)
             .transition()
             .duration(1000)
             .ease(d3.easeLinear)

@@ -23,7 +23,8 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
         prev: null,
         curr: nodesCopy[0].id,
         next: null
-      }
+      },
+      description: '初始化：prev = null, curr = head (指向第一个节点)'
     },
     timestamp: timestamp++
   });
@@ -48,13 +49,15 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
           prev,
           curr,
           next: null
-        }
+        },
+        description: `进入 while 循环，当前处理节点 ${currNode.value}`
       },
       timestamp: timestamp++
     });
 
     // 保存next指针
     const next = currNode.next;
+    const nextNode = nodesCopy.find(n => n.id === next);
     events.push({
       type: 'SET_NEXT_POINTER',
       data: {
@@ -63,13 +66,15 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
           prev,
           curr,
           next
-        }
+        },
+        description: `保存下一个节点：next = curr.next = ${nextNode ? nextNode.value : 'null'}`
       },
       timestamp: timestamp++
     });
 
     // 反转curr的next指针指向prev
     currNode.next = prev;
+    const prevNode = nodesCopy.find(n => n.id === prev);
     events.push({
       type: 'REVERSE_POINTER',
       data: {
@@ -79,7 +84,8 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
           curr,
           next
         },
-        reversedNode: curr
+        reversedNode: curr,
+        description: `🔄 反转指针：curr.next = prev，即 ${currNode.value}.next = ${prevNode ? prevNode.value : 'null'}`
       },
       timestamp: timestamp++
     });
@@ -94,7 +100,8 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
           prev,
           curr,
           next
-        }
+        },
+        description: `移动 prev 指针：prev = curr = ${currNode.value}`
       },
       timestamp: timestamp++
     });
@@ -105,6 +112,7 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
     if (currNode) {
       currNode.isActive = false;
     }
+    const newCurrNode = nodesCopy.find(n => n.id === curr);
     events.push({
       type: 'MOVE_CURR',
       data: {
@@ -113,13 +121,15 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
           prev,
           curr,
           next: null
-        }
+        },
+        description: `移动 curr 指针：curr = next = ${newCurrNode ? newCurrNode.value : 'null'}，准备处理下一个节点`
       },
       timestamp: timestamp++
     });
   }
 
   // 完成反转
+  const finalHead = nodesCopy.find(n => n.id === prev);
   events.push({
     type: 'COMPLETE',
     data: {
@@ -129,7 +139,8 @@ export const generateIterativeReverseEvents = (nodes: ListNodeData[]): Animation
         curr: null,
         next: null,
         newHead: prev
-      }
+      },
+      description: `🎉 反转完成！curr = null，循环结束。新的头节点是 ${finalHead?.value}`
     },
     timestamp: timestamp++
   });
@@ -152,7 +163,7 @@ export const reverseLinkedListIterative = (
   }
 
   let prev: number | null = null;
-  let curr = head;
+  let curr: number | null = head;
   let next: number | null = null;
 
   while (curr !== null) {
