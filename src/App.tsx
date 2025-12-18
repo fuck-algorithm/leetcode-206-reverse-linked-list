@@ -4,6 +4,7 @@ import { store } from './store';
 import Navbar from './components/Navbar';
 import IterativePage from './pages/IterativePage';
 import RecursivePage from './pages/RecursivePage';
+import WechatGroupFloat from './components/WechatGroupFloat';
 import './App.css';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
             <Route path="/iterative" element={<IterativePage />} />
             <Route path="/recursive" element={<RecursivePage />} />
           </Routes>
+          <WechatGroupFloat />
         </div>
       </BrowserRouter>
     </Provider>
