@@ -57,48 +57,48 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 24px;
+  gap: 20px;
   background: #e8eaf6;
-  padding: 12px 20px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 6px;
   flex-wrap: wrap;
 }
 
 .control-buttons {
   display: flex;
-  gap: 8px;
+  gap: 6px;
 }
 
 .control-buttons button {
-  min-width: 80px;
-  height: 48px;
+  min-width: 70px;
+  height: 32px;
   border: none;
-  border-radius: 10px;
+  border-radius: 6px;
   background: white;
-  font-size: 18px;
+  font-size: 14px;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
-  padding: 8px 16px;
-  gap: 8px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+  padding: 4px 12px;
+  gap: 6px;
 }
 
 .control-buttons button .btn-icon {
-  font-size: 20px;
+  font-size: 14px;
   line-height: 1;
 }
 
 .control-buttons button .btn-shortcut {
-  font-size: 11px;
+  font-size: 10px;
   opacity: 0.7;
   font-family: monospace;
   background: rgba(0,0,0,0.08);
-  padding: 2px 6px;
-  border-radius: 4px;
+  padding: 1px 4px;
+  border-radius: 3px;
 }
 
 .control-buttons button:hover:not(:disabled) {
@@ -118,7 +118,7 @@
 }
 
 .control-buttons .play-btn {
-  min-width: 100px;
+  min-width: 90px;
   background: #667eea;
   color: white;
 }
