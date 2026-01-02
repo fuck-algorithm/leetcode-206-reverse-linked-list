@@ -1,8 +1,7 @@
 import { createContext, useContext, RefObject } from 'react';
 import { AnimationController } from '../controllers/AnimationController';
-import { CycleDetectionController } from '../controllers/CycleDetectionController';
 
-type ControllerType = AnimationController | CycleDetectionController | null;
+type ControllerType = AnimationController | null;
 
 interface AnimationControllerContextType {
   controllerRef: RefObject<ControllerType>;

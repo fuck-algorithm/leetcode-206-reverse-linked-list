@@ -38,22 +38,6 @@ const ALGORITHM_THOUGHTS: Record<string, { title: string; content: string }> = {
 
 时间复杂度：O(n)，递归遍历每个节点
 空间复杂度：O(n)，递归调用栈深度`
-  },
-  'cycle-detection': {
-    title: '环检测思路',
-    content: `Floyd 快慢指针算法（龟兔赛跑算法）：
-
-1. 使用两个指针：slow（慢指针）和 fast（快指针）
-2. slow 每次移动一步，fast 每次移动两步
-3. 如果存在环，fast 最终会追上 slow
-
-原理：
-- 如果链表有环，fast 会先进入环
-- 由于 fast 比 slow 快，它们最终会在环内相遇
-- 如果链表无环，fast 会先到达 null
-
-时间复杂度：O(n)
-空间复杂度：O(1)`
   }
 };
 
@@ -73,7 +57,6 @@ const Navbar: React.FC = () => {
   const getCurrentAlgorithm = (): string => {
     const path = location.pathname;
     if (path.includes('recursive')) return 'recursive';
-    if (path.includes('cycle-detection')) return 'cycle-detection';
     return 'iterative';
   };
 
@@ -118,12 +101,6 @@ const Navbar: React.FC = () => {
             className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
           >
             递归法
-          </NavLink>
-          <NavLink 
-            to="/cycle-detection" 
-            className={({ isActive }) => isActive ? 'nav-link active' : 'nav-link'}
-          >
-            环检测
           </NavLink>
         </div>
 
