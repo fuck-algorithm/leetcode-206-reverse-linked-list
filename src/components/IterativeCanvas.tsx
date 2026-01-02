@@ -104,14 +104,21 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染操作标签
+  // 渲染操作标签 - 放在链表上方居中位置
   const renderActionLabel = () => {
     const action = getActionLabel();
     if (!action) return null;
+    
+    // 计算链表的中心位置
+    const centerX = canvasSize.width / 2;
+    const centerY = canvasSize.height / 2;
+    // 标签放在链表上方
+    const labelY = centerY - 120;
+    
     return (
       <g className="action-label">
-        <rect x={20} y={15} width={160} height={32} rx={6} fill={action.color} opacity={0.15} stroke={action.color} />
-        <text x={100} y={36} textAnchor="middle" fontSize="14px" fontWeight="bold" fill={action.color}>
+        <rect x={centerX - 80} y={labelY} width={160} height={32} rx={6} fill={action.color} opacity={0.15} stroke={action.color} />
+        <text x={centerX} y={labelY + 21} textAnchor="middle" fontSize="14px" fontWeight="bold" fill={action.color}>
           {action.icon} {action.text}
         </text>
       </g>
