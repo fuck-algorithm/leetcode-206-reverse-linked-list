@@ -365,6 +365,79 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
+  // 渲染每个节点下方的 prev/next 指针状态
+  const renderNodePointerStates = () => {
+    const states: React.ReactElement[] = [];
+    
+    currentNodeData.forEach((node: ListNodeData) => {
+      const pos = nodePositions.get(node.id);
+      if (!pos) return;
+      
+      // 获取该节点的 prev 值（指向它的前一个节点）
+      // 在链表中，prev 是指向当前节点的前一个节点
+      const prevNode = currentNodeData.find((n: ListNodeData) => n.next === node.id);
+      const prevValue = prevNode ? prevNode.value : null;
+      
+      // 获取该节点的 next 值
+      const nextNode = node.next !== null ? currentNodeData.find((n: ListNodeData) => n.id === node.next) : null;
+      const nextValue = nextNode ? nextNode.value : null;
+      
+      const baseY = pos.y + 45;
+      const boxWidth = 80;
+      const boxHeight = 36;
+      
+      states.push(
+        <g key={`node-state-${node.id}`} className="node-pointer-state">
+          {/* 背景框 */}
+          <rect 
+            x={pos.x - boxWidth / 2} 
+            y={baseY} 
+            width={boxWidth} 
+            height={boxHeight} 
+            rx={4} 
+            fill="#f5f5f5" 
+            stroke="#e0e0e0"
+            strokeWidth={1}
+          />
+          {/* prev 值 */}
+          <text x={pos.x - boxWidth / 4} y={baseY + 14} textAnchor="middle" fontSize="9px" fill="#9c27b0" fontWeight="600">
+            prev
+          </text>
+          <text 
+            x={pos.x - boxWidth / 4} 
+            y={baseY + 28} 
+            textAnchor="middle" 
+            fontSize="10px" 
+            fontFamily="monospace"
+            fill={prevValue === null ? '#f44336' : '#333'}
+            fontWeight={prevValue === null ? 'bold' : 'normal'}
+          >
+            {prevValue === null ? 'NULL' : prevValue}
+          </text>
+          {/* 分隔线 */}
+          <line x1={pos.x} y1={baseY + 4} x2={pos.x} y2={baseY + boxHeight - 4} stroke="#e0e0e0" strokeWidth={1} />
+          {/* next 值 */}
+          <text x={pos.x + boxWidth / 4} y={baseY + 14} textAnchor="middle" fontSize="9px" fill="#ff9800" fontWeight="600">
+            next
+          </text>
+          <text 
+            x={pos.x + boxWidth / 4} 
+            y={baseY + 28} 
+            textAnchor="middle" 
+            fontSize="10px" 
+            fontFamily="monospace"
+            fill={nextValue === null ? '#f44336' : '#333'}
+            fontWeight={nextValue === null ? 'bold' : 'normal'}
+          >
+            {nextValue === null ? 'NULL' : nextValue}
+          </text>
+        </g>
+      );
+    });
+    
+    return states;
+  };
+
   // 渲染完成状态 - 已合并到 renderActionLabel 中，保留空函数避免调用错误
   const renderCompleteIndicator = () => {
     return null;
@@ -404,6 +477,7 @@ const IterativeCanvas: React.FC = () => {
             return <ListNode key={node.id} data={{ ...node, position: pos }} nodeRadius={28} />;
           })}
         </g>
+        <g className="node-pointer-states">{renderNodePointerStates()}</g>
         <g className="pointers">{renderPointerLabels()}</g>
         {renderMoveIndicator()}
         {renderStatePanel()}
