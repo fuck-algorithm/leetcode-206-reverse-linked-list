@@ -365,16 +365,17 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染每个节点下方的 prev/next 指针状态
+  // 渲染每个节点左右两侧的 prev/next 指针状态
+  // prev 在节点左下方，next 在节点右下方，避免和连接线重叠
   const renderNodePointerStates = () => {
     const states: React.ReactElement[] = [];
+    const nodeRadius = 28;
     
     currentNodeData.forEach((node: ListNodeData) => {
       const pos = nodePositions.get(node.id);
       if (!pos) return;
       
       // 获取该节点的 prev 值（指向它的前一个节点）
-      // 在链表中，prev 是指向当前节点的前一个节点
       const prevNode = currentNodeData.find((n: ListNodeData) => n.next === node.id);
       const prevValue = prevNode ? prevNode.value : null;
       
@@ -382,55 +383,68 @@ const IterativeCanvas: React.FC = () => {
       const nextNode = node.next !== null ? currentNodeData.find((n: ListNodeData) => n.id === node.next) : null;
       const nextValue = nextNode ? nextNode.value : null;
       
-      const baseY = pos.y + 45;
-      const boxWidth = 80;
-      const boxHeight = 36;
+      // 基准Y位置在节点下方
+      const baseY = pos.y + nodeRadius + 8;
+      
+      // prev 标签在节点左下方
+      const prevX = pos.x - 20;
+      
+      // next 标签在节点右下方
+      const nextX = pos.x + 20;
       
       states.push(
         <g key={`node-state-${node.id}`} className="node-pointer-state">
-          {/* 背景框 */}
-          <rect 
-            x={pos.x - boxWidth / 2} 
-            y={baseY} 
-            width={boxWidth} 
-            height={boxHeight} 
-            rx={4} 
-            fill="#f5f5f5" 
-            stroke="#e0e0e0"
-            strokeWidth={1}
-          />
-          {/* prev 值 */}
-          <text x={pos.x - boxWidth / 4} y={baseY + 14} textAnchor="middle" fontSize="9px" fill="#9c27b0" fontWeight="600">
-            prev
-          </text>
-          <text 
-            x={pos.x - boxWidth / 4} 
-            y={baseY + 28} 
-            textAnchor="middle" 
-            fontSize="10px" 
-            fontFamily="monospace"
-            fill={prevValue === null ? '#f44336' : '#333'}
-            fontWeight={prevValue === null ? 'bold' : 'normal'}
-          >
-            {prevValue === null ? 'NULL' : prevValue}
-          </text>
-          {/* 分隔线 */}
-          <line x1={pos.x} y1={baseY + 4} x2={pos.x} y2={baseY + boxHeight - 4} stroke="#e0e0e0" strokeWidth={1} />
-          {/* next 值 */}
-          <text x={pos.x + boxWidth / 4} y={baseY + 14} textAnchor="middle" fontSize="9px" fill="#ff9800" fontWeight="600">
-            next
-          </text>
-          <text 
-            x={pos.x + boxWidth / 4} 
-            y={baseY + 28} 
-            textAnchor="middle" 
-            fontSize="10px" 
-            fontFamily="monospace"
-            fill={nextValue === null ? '#f44336' : '#333'}
-            fontWeight={nextValue === null ? 'bold' : 'normal'}
-          >
-            {nextValue === null ? 'NULL' : nextValue}
-          </text>
+          {/* prev 值 - 左下方 */}
+          <g className="prev-indicator">
+            <rect 
+              x={prevX - 15} 
+              y={baseY} 
+              width={30} 
+              height={22} 
+              rx={3} 
+              fill={prevValue === null ? '#ffebee' : '#f3e5f5'}
+              stroke={prevValue === null ? '#f44336' : '#9c27b0'}
+              strokeWidth={1}
+              opacity={0.9}
+            />
+            <text 
+              x={prevX} 
+              y={baseY + 15} 
+              textAnchor="middle" 
+              fontSize="11px" 
+              fontFamily="monospace"
+              fill={prevValue === null ? '#f44336' : '#9c27b0'}
+              fontWeight="bold"
+            >
+              {prevValue === null ? '∅' : prevValue}
+            </text>
+          </g>
+          
+          {/* next 值 - 右下方 */}
+          <g className="next-indicator">
+            <rect 
+              x={nextX - 15} 
+              y={baseY} 
+              width={30} 
+              height={22} 
+              rx={3} 
+              fill={nextValue === null ? '#ffebee' : '#fff3e0'}
+              stroke={nextValue === null ? '#f44336' : '#ff9800'}
+              strokeWidth={1}
+              opacity={0.9}
+            />
+            <text 
+              x={nextX} 
+              y={baseY + 15} 
+              textAnchor="middle" 
+              fontSize="11px" 
+              fontFamily="monospace"
+              fill={nextValue === null ? '#f44336' : '#ff9800'}
+              fontWeight="bold"
+            >
+              {nextValue === null ? '∅' : nextValue}
+            </text>
+          </g>
         </g>
       );
     });
