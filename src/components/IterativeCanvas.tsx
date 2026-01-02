@@ -13,7 +13,10 @@ const IterativeCanvas: React.FC = () => {
   );
   const [canvasReady, setCanvasReady] = useState(false);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 400 });
-  const nodeSpacing = 110;
+  const nodeSpacing = 150; // 增加间距，避免 prev/next 方框重叠
+  const nodeRadius = 28;
+  const boxSize = 24;
+  const boxOffset = nodeRadius + 22; // prev/next 方框距离节点中心的距离
 
   useEffect(() => {
     const updateSize = () => {
@@ -201,6 +204,7 @@ const IterativeCanvas: React.FC = () => {
   };
 
   // 渲染连接线（带方向指示）
+  // 箭头从当前节点的 next 方框右边出发，到下一个节点的 prev 方框左边结束
   const renderConnections = () => {
     const connections: React.ReactElement[] = [];
     
@@ -216,12 +220,22 @@ const IterativeCanvas: React.FC = () => {
       const strokeColor = isReversed ? '#4caf50' : '#90a4ae';
       const strokeWidth = isReversed ? 3 : 2;
 
+      // 计算连接线的起点和终点
+      // 起点：当前节点的 next 方框右边
+      const startX = p1.x + boxOffset + boxSize / 2;
+      // 终点：下一个节点的 prev 方框左边
+      const endX = p2.x - boxOffset - boxSize / 2;
+
       if (isReversed) {
+        // 反转后的连接线（从下方绕过）
         const midY = p1.y + 55;
+        // 反转时：从当前节点的 prev 方框左边出发，到目标节点的 next 方框右边
+        const revStartX = p1.x - boxOffset - boxSize / 2;
+        const revEndX = p2.x + boxOffset + boxSize / 2;
         connections.push(
           <g key={`conn-${node.id}`}>
             <path
-              d={`M ${p1.x - 20} ${p1.y + 25} Q ${(p1.x + p2.x) / 2} ${midY} ${p2.x + 20} ${p2.y + 25}`}
+              d={`M ${revStartX} ${p1.y} Q ${(p1.x + p2.x) / 2} ${midY} ${revEndX} ${p2.y}`}
               fill="none"
               stroke={strokeColor}
               strokeWidth={strokeWidth}
@@ -233,8 +247,9 @@ const IterativeCanvas: React.FC = () => {
           </g>
         );
       } else {
+        // 正常连接线：从 next 方框右边到 prev 方框左边
         connections.push(
-          <line key={`conn-${node.id}`} x1={p1.x + 32} y1={p1.y} x2={p2.x - 32} y2={p2.y}
+          <line key={`conn-${node.id}`} x1={startX} y1={p1.y} x2={endX} y2={p2.y}
             stroke={strokeColor} strokeWidth={strokeWidth} markerEnd="url(#arr-conn)" />
         );
       }
@@ -250,7 +265,8 @@ const IterativeCanvas: React.FC = () => {
     const nextPos = nodePositions.get(pointers.next);
     if (!currPos || !nextPos) return null;
 
-    const midX = (currPos.x + nextPos.x) / 2;
+    // X标记放在两个节点之间（next方框和prev方框之间）
+    const midX = (currPos.x + boxOffset + nextPos.x - boxOffset) / 2;
     return (
       <g className="break-indicator">
         {/* X标记 */}
@@ -274,12 +290,14 @@ const IterativeCanvas: React.FC = () => {
     if (!currPos) return null;
 
     if (prevPos) {
-      // 显示新建的反转连接
+      // 显示新建的反转连接（从 prev 方框左边到目标节点的 next 方框右边）
       const midY = currPos.y + 55;
+      const startX = currPos.x - boxOffset - boxSize / 2;
+      const endX = prevPos.x + boxOffset + boxSize / 2;
       return (
         <g className="new-connection">
           <path
-            d={`M ${currPos.x - 20} ${currPos.y + 25} Q ${(currPos.x + prevPos.x) / 2} ${midY} ${prevPos.x + 20} ${prevPos.y + 25}`}
+            d={`M ${startX} ${currPos.y} Q ${(currPos.x + prevPos.x) / 2} ${midY} ${endX} ${prevPos.y}`}
             fill="none"
             stroke="#f44336"
             strokeWidth="3"
@@ -292,12 +310,13 @@ const IterativeCanvas: React.FC = () => {
         </g>
       );
     } else {
-      // prev是null，显示指向null
+      // prev是null，显示指向null（从 prev 方框左边出发）
+      const startX = currPos.x - boxOffset - boxSize / 2;
       return (
         <g className="new-connection-null">
-          <line x1={currPos.x - 32} y1={currPos.y} x2={currPos.x - 60} y2={currPos.y}
+          <line x1={startX} y1={currPos.y} x2={startX - 30} y2={currPos.y}
             stroke="#f44336" strokeWidth="3" strokeDasharray="8,4" markerEnd="url(#arr-new)" />
-          <text x={currPos.x - 75} y={currPos.y + 20} textAnchor="middle" fontSize="10px" fill="#f44336" fontWeight="600">
+          <text x={startX - 45} y={currPos.y + 20} textAnchor="middle" fontSize="10px" fill="#f44336" fontWeight="600">
             → null
           </text>
         </g>
@@ -317,19 +336,21 @@ const IterativeCanvas: React.FC = () => {
     });
     if (leftmostX === Infinity) return null;
 
+    // null 方框放在最左边节点的 prev 方框左边
+    const nullX = leftmostX - boxOffset - boxSize / 2 - 35;
     return (
       <g className="null-indicator">
-        <rect x={leftmostX - 85} y={leftmostY - 18} width={45} height={36} rx={6}
+        <rect x={nullX - 22} y={leftmostY - 18} width={45} height={36} rx={6}
           fill="#fafafa" stroke="#e0e0e0" strokeDasharray="4,2" />
-        <text x={leftmostX - 62} y={leftmostY + 6} textAnchor="middle" fontSize="13px" fill="#9e9e9e" fontWeight="600">
+        <text x={nullX} y={leftmostY + 6} textAnchor="middle" fontSize="13px" fill="#9e9e9e" fontWeight="600">
           null
         </text>
         {/* prev指向null的箭头 */}
         {pointers.prev === null && pointers.curr !== null && (
           <g>
-            <line x1={leftmostX - 40} y1={leftmostY - 30} x2={leftmostX - 62} y2={leftmostY - 20}
+            <line x1={nullX + 22} y1={leftmostY - 30} x2={nullX} y2={leftmostY - 20}
               stroke="#9c27b0" strokeWidth="2" strokeDasharray="4,2" markerEnd="url(#arr-prev)" />
-            <text x={leftmostX - 50} y={leftmostY - 38} textAnchor="middle" fontSize="10px" fill="#9c27b0">
+            <text x={nullX + 10} y={leftmostY - 38} textAnchor="middle" fontSize="10px" fill="#9c27b0">
               prev
             </text>
           </g>
@@ -369,9 +390,6 @@ const IterativeCanvas: React.FC = () => {
   // 每个节点自己的 prev 在自己左边，自己的 next 在自己右边
   const renderNodePointerStates = () => {
     const states: React.ReactElement[] = [];
-    const nodeRadius = 28;
-    const boxSize = 24;
-    const offset = nodeRadius + 22; // 距离节点中心的距离
     
     currentNodeData.forEach((node: ListNodeData) => {
       const pos = nodePositions.get(node.id);
@@ -386,9 +404,9 @@ const IterativeCanvas: React.FC = () => {
       const nextValue = nextNode ? nextNode.value : null;
       
       // prev 在节点左边
-      const prevX = pos.x - offset;
+      const prevX = pos.x - boxOffset;
       // next 在节点右边
-      const nextX = pos.x + offset;
+      const nextX = pos.x + boxOffset;
       
       states.push(
         <g key={`node-state-${node.id}`} className="node-pointer-state">
@@ -484,7 +502,7 @@ const IterativeCanvas: React.FC = () => {
         <g className="nodes">
           {currentNodeData.map(node => {
             const pos = nodePositions.get(node.id) || { x: 0, y: 0 };
-            return <ListNode key={node.id} data={{ ...node, position: pos }} nodeRadius={28} />;
+            return <ListNode key={node.id} data={{ ...node, position: pos }} nodeRadius={nodeRadius} />;
           })}
         </g>
         <g className="node-pointer-states">{renderNodePointerStates()}</g>
