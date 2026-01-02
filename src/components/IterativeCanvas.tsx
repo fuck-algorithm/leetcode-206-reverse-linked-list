@@ -365,76 +365,19 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染链表左侧的 prev 列和右侧的 next 列
-  // prev 列在链表最左边，next 列在链表最右边
+  // 渲染每个节点左右两侧的 prev/next 指针状态
+  // 每个节点自己的 prev 在自己左边，自己的 next 在自己右边
   const renderNodePointerStates = () => {
-    if (currentNodeData.length === 0 || nodePositions.size === 0) return null;
-    
-    // 找到链表的最左和最右位置
-    let leftmostX = Infinity;
-    let rightmostX = -Infinity;
-    let centerY = 0;
-    
-    nodePositions.forEach((pos) => {
-      if (pos.x < leftmostX) leftmostX = pos.x;
-      if (pos.x > rightmostX) rightmostX = pos.x;
-      centerY = pos.y;
-    });
-    
-    if (leftmostX === Infinity) return null;
-    
+    const states: React.ReactElement[] = [];
     const nodeRadius = 28;
-    const boxWidth = 36;
-    const boxHeight = 28;
-    const gap = 6;
+    const boxSize = 24;
+    const offset = nodeRadius + 22; // 距离节点中心的距离
     
-    // prev 列位置 - 在链表最左边
-    const prevColumnX = leftmostX - nodeRadius - 60;
-    
-    // next 列位置 - 在链表最右边
-    const nextColumnX = rightmostX + nodeRadius + 60;
-    
-    // 计算列表起始Y位置（垂直居中）
-    const totalHeight = currentNodeData.length * (boxHeight + gap) - gap;
-    const startY = centerY - totalHeight / 2;
-    
-    const elements: React.ReactElement[] = [];
-    
-    // 渲染 prev 列标题
-    elements.push(
-      <text 
-        key="prev-title" 
-        x={prevColumnX} 
-        y={startY - 15} 
-        textAnchor="middle" 
-        fontSize="12px" 
-        fontWeight="bold" 
-        fill="#9c27b0"
-      >
-        prev
-      </text>
-    );
-    
-    // 渲染 next 列标题
-    elements.push(
-      <text 
-        key="next-title" 
-        x={nextColumnX} 
-        y={startY - 15} 
-        textAnchor="middle" 
-        fontSize="12px" 
-        fontWeight="bold" 
-        fill="#ff9800"
-      >
-        next
-      </text>
-    );
-    
-    // 渲染每个节点的 prev 和 next 值
-    currentNodeData.forEach((node: ListNodeData, index: number) => {
-      const y = startY + index * (boxHeight + gap);
+    currentNodeData.forEach((node: ListNodeData) => {
+      const pos = nodePositions.get(node.id);
+      if (!pos) return;
       
-      // 获取该节点的 prev 值
+      // 获取该节点的 prev 值（指向它的前一个节点）
       const prevNode = currentNodeData.find((n: ListNodeData) => n.next === node.id);
       const prevValue = prevNode ? prevNode.value : null;
       
@@ -442,88 +385,67 @@ const IterativeCanvas: React.FC = () => {
       const nextNode = node.next !== null ? currentNodeData.find((n: ListNodeData) => n.id === node.next) : null;
       const nextValue = nextNode ? nextNode.value : null;
       
-      // prev 值框
-      elements.push(
-        <g key={`prev-${node.id}`}>
-          <rect 
-            x={prevColumnX - boxWidth / 2} 
-            y={y} 
-            width={boxWidth} 
-            height={boxHeight} 
-            rx={4} 
-            fill={prevValue === null ? '#ffebee' : '#f3e5f5'}
-            stroke={prevValue === null ? '#f44336' : '#9c27b0'}
-            strokeWidth={1.5}
-          />
-          <text 
-            x={prevColumnX} 
-            y={y + boxHeight / 2 + 5} 
-            textAnchor="middle" 
-            fontSize="13px" 
-            fontFamily="monospace"
-            fill={prevValue === null ? '#f44336' : '#9c27b0'}
-            fontWeight="bold"
-          >
-            {prevValue === null ? '∅' : prevValue}
-          </text>
+      // prev 在节点左边
+      const prevX = pos.x - offset;
+      // next 在节点右边
+      const nextX = pos.x + offset;
+      
+      states.push(
+        <g key={`node-state-${node.id}`} className="node-pointer-state">
+          {/* prev 值 - 节点左边 */}
+          <g className="prev-indicator">
+            <rect 
+              x={prevX - boxSize / 2} 
+              y={pos.y - boxSize / 2} 
+              width={boxSize} 
+              height={boxSize} 
+              rx={4} 
+              fill={prevValue === null ? '#ffebee' : '#f3e5f5'}
+              stroke={prevValue === null ? '#f44336' : '#9c27b0'}
+              strokeWidth={1.5}
+            />
+            <text 
+              x={prevX} 
+              y={pos.y + 5} 
+              textAnchor="middle" 
+              fontSize="12px" 
+              fontFamily="monospace"
+              fill={prevValue === null ? '#f44336' : '#9c27b0'}
+              fontWeight="bold"
+            >
+              {prevValue === null ? '∅' : prevValue}
+            </text>
+          </g>
+          
+          {/* next 值 - 节点右边 */}
+          <g className="next-indicator">
+            <rect 
+              x={nextX - boxSize / 2} 
+              y={pos.y - boxSize / 2} 
+              width={boxSize} 
+              height={boxSize} 
+              rx={4} 
+              fill={nextValue === null ? '#ffebee' : '#fff3e0'}
+              stroke={nextValue === null ? '#f44336' : '#ff9800'}
+              strokeWidth={1.5}
+            />
+            <text 
+              x={nextX} 
+              y={pos.y + 5} 
+              textAnchor="middle" 
+              fontSize="12px" 
+              fontFamily="monospace"
+              fill={nextValue === null ? '#f44336' : '#ff9800'}
+              fontWeight="bold"
+            >
+              {nextValue === null ? '∅' : nextValue}
+            </text>
+          </g>
         </g>
-      );
-      
-      // next 值框
-      elements.push(
-        <g key={`next-${node.id}`}>
-          <rect 
-            x={nextColumnX - boxWidth / 2} 
-            y={y} 
-            width={boxWidth} 
-            height={boxHeight} 
-            rx={4} 
-            fill={nextValue === null ? '#ffebee' : '#fff3e0'}
-            stroke={nextValue === null ? '#f44336' : '#ff9800'}
-            strokeWidth={1.5}
-          />
-          <text 
-            x={nextColumnX} 
-            y={y + boxHeight / 2 + 5} 
-            textAnchor="middle" 
-            fontSize="13px" 
-            fontFamily="monospace"
-            fill={nextValue === null ? '#f44336' : '#ff9800'}
-            fontWeight="bold"
-          >
-            {nextValue === null ? '∅' : nextValue}
-          </text>
-        </g>
-      );
-      
-      // 节点值标签（在 prev 和 next 之间显示对应的节点）
-      elements.push(
-        <text 
-          key={`node-label-prev-${node.id}`}
-          x={prevColumnX + boxWidth / 2 + 8} 
-          y={y + boxHeight / 2 + 4} 
-          fontSize="10px" 
-          fill="#666"
-        >
-          [{node.value}]
-        </text>
-      );
-      
-      elements.push(
-        <text 
-          key={`node-label-next-${node.id}`}
-          x={nextColumnX - boxWidth / 2 - 8} 
-          y={y + boxHeight / 2 + 4} 
-          textAnchor="end"
-          fontSize="10px" 
-          fill="#666"
-        >
-          [{node.value}]
-        </text>
       );
     });
     
-    return elements;
+    return states;
   };
 
   // 渲染完成状态 - 已合并到 renderActionLabel 中，保留空函数避免调用错误
