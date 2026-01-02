@@ -59,28 +59,6 @@ const IterativeCanvas: React.FC = () => {
     return node ? node.value : 'null';
   };
 
-  // 获取当前操作的描述标签
-  const getActionLabel = (): { text: string; color: string; icon: string } | null => {
-    switch (currentEventType) {
-      case 'INITIALIZE':
-        return { text: '初始化指针', color: '#4caf50', icon: '🚀' };
-      case 'HIGHLIGHT_NODE':
-        return { text: '进入循环', color: '#2196f3', icon: '🔄' };
-      case 'SET_NEXT_POINTER':
-        return { text: '保存 next 指针', color: '#ff9800', icon: '📌' };
-      case 'REVERSE_POINTER':
-        return { text: '反转指针方向', color: '#f44336', icon: '↩️' };
-      case 'MOVE_PREV':
-        return { text: 'prev 前移', color: '#9c27b0', icon: '➡️' };
-      case 'MOVE_CURR':
-        return { text: 'curr 前移', color: '#2196f3', icon: '➡️' };
-      case 'COMPLETE':
-        return { text: '反转完成！', color: '#4caf50', icon: '✅' };
-      default:
-        return null;
-    }
-  };
-
   // 渲染变量状态面板
   const renderStatePanel = () => {
     const panelX = canvasSize.width - 130;
@@ -104,10 +82,9 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染操作标签 - 放在链表上方居中位置
+  // 渲染操作标签 - 放在链表上方居中位置，包含完整的操作说明
   const renderActionLabel = () => {
-    const action = getActionLabel();
-    if (!action) return null;
+    if (!currentEventType) return null;
     
     // 计算链表的中心位置
     const centerX = canvasSize.width / 2;
@@ -115,11 +92,69 @@ const IterativeCanvas: React.FC = () => {
     // 标签放在链表上方
     const labelY = centerY - 120;
     
+    // 根据操作类型生成完整的说明文字
+    let icon = '';
+    let title = '';
+    let detail = '';
+    let color = '#666';
+    
+    switch (currentEventType) {
+      case 'INITIALIZE':
+        icon = '🚀';
+        title = '初始化';
+        detail = 'prev = null, curr = head';
+        color = '#4caf50';
+        break;
+      case 'HIGHLIGHT_NODE':
+        icon = '🔄';
+        title = '进入循环';
+        detail = `curr(${getNodeValue(pointers.curr)}) != null，继续循环`;
+        color = '#2196f3';
+        break;
+      case 'SET_NEXT_POINTER':
+        icon = '📌';
+        title = '保存下一节点';
+        detail = `next = curr.next → next 指向节点 ${getNodeValue(pointers.next)}`;
+        color = '#ff9800';
+        break;
+      case 'REVERSE_POINTER':
+        icon = '↩️';
+        title = '反转指针';
+        detail = `curr.next = prev → 节点 ${getNodeValue(pointers.curr)} 指向 ${getNodeValue(pointers.prev)}`;
+        color = '#f44336';
+        break;
+      case 'MOVE_PREV':
+        icon = '➡️';
+        title = 'prev 前移';
+        detail = `prev = curr → prev 移动到节点 ${getNodeValue(pointers.prev)}`;
+        color = '#9c27b0';
+        break;
+      case 'MOVE_CURR':
+        icon = '➡️';
+        title = 'curr 前移';
+        detail = `curr = next → curr 移动到节点 ${getNodeValue(pointers.curr)}`;
+        color = '#2196f3';
+        break;
+      case 'COMPLETE':
+        icon = '✅';
+        title = '反转完成';
+        detail = `curr = null，循环结束，返回 prev`;
+        color = '#4caf50';
+        break;
+      default:
+        return null;
+    }
+    
+    const boxWidth = Math.max(detail.length * 10 + 40, 200);
+    
     return (
       <g className="action-label">
-        <rect x={centerX - 80} y={labelY} width={160} height={32} rx={6} fill={action.color} opacity={0.15} stroke={action.color} />
-        <text x={centerX} y={labelY + 21} textAnchor="middle" fontSize="14px" fontWeight="bold" fill={action.color}>
-          {action.icon} {action.text}
+        <rect x={centerX - boxWidth / 2} y={labelY} width={boxWidth} height={48} rx={8} fill={color} opacity={0.12} stroke={color} strokeWidth={1.5} />
+        <text x={centerX} y={labelY + 18} textAnchor="middle" fontSize="14px" fontWeight="bold" fill={color}>
+          {icon} {title}
+        </text>
+        <text x={centerX} y={labelY + 38} textAnchor="middle" fontSize="12px" fill={color} opacity={0.9}>
+          {detail}
         </text>
       </g>
     );
@@ -330,52 +365,9 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染完成状态
+  // 渲染完成状态 - 已合并到 renderActionLabel 中，保留空函数避免调用错误
   const renderCompleteIndicator = () => {
-    if (currentEventType !== 'COMPLETE') return null;
-    
-    return (
-      <g className="complete-indicator">
-        <rect x={canvasSize.width / 2 - 80} y={20} width={160} height={40} rx={8}
-          fill="#4caf50" opacity={0.9} />
-        <text x={canvasSize.width / 2} y={46} textAnchor="middle" fontSize="16px" fill="white" fontWeight="bold">
-          🎉 反转完成！
-        </text>
-      </g>
-    );
-  };
-
-  // 渲染步骤说明
-  const renderStepExplanation = () => {
-    if (!currentEventType) return null;
-    
-    let explanation = '';
-    switch (currentEventType) {
-      case 'SET_NEXT_POINTER':
-        explanation = `next = curr.next → 保存节点${getNodeValue(pointers.next)}`;
-        break;
-      case 'REVERSE_POINTER':
-        explanation = `curr.next = prev → 反转指向`;
-        break;
-      case 'MOVE_PREV':
-        explanation = `prev = curr → 移动到节点${getNodeValue(pointers.prev)}`;
-        break;
-      case 'MOVE_CURR':
-        explanation = `curr = next → 移动到节点${getNodeValue(pointers.curr)}`;
-        break;
-      default:
-        return null;
-    }
-
-    return (
-      <g className="step-explanation">
-        <rect x={canvasSize.width / 2 - 120} y={canvasSize.height - 45} width={240} height={30} rx={6}
-          fill="#fff3e0" stroke="#ffb74d" />
-        <text x={canvasSize.width / 2} y={canvasSize.height - 25} textAnchor="middle" fontSize="12px" fill="#e65100" fontWeight="500">
-          {explanation}
-        </text>
-      </g>
-    );
+    return null;
   };
 
   return (
@@ -415,7 +407,6 @@ const IterativeCanvas: React.FC = () => {
         <g className="pointers">{renderPointerLabels()}</g>
         {renderMoveIndicator()}
         {renderStatePanel()}
-        {renderStepExplanation()}
         {renderCompleteIndicator()}
       </svg>
     </div>
