@@ -17,7 +17,18 @@ const initialState: AnimationState = {
   },
   callStack: [],
   stepDescription: '',
-  currentEventType: ''
+  currentEventType: '',
+  // 环检测相关初始状态
+  cyclePointers: {
+    fast: null,
+    slow: null
+  },
+  cycleConfig: {
+    entryPoint: null,
+    nodeCount: 5
+  },
+  meetingPoint: null,
+  cycleDetected: false
 };
 
 // 创建动画状态切片
@@ -56,7 +67,7 @@ export const animationSlice = createSlice({
     setAnimationSpeed: (state: AnimationState, action: PayloadAction<number>) => {
       state.animationSpeed = action.payload;
     },
-    setAnimationMethod: (state: AnimationState, action: PayloadAction<'iterative' | 'recursive'>) => {
+    setAnimationMethod: (state: AnimationState, action: PayloadAction<'iterative' | 'recursive' | 'cycle-detection'>) => {
       state.animationMethod = action.payload;
       state.currentStep = 0;
       state.isPlaying = false;
@@ -67,6 +78,13 @@ export const animationSlice = createSlice({
         newHead: null
       };
       state.callStack = [];
+      // 重置环检测状态
+      state.cyclePointers = {
+        fast: null,
+        slow: null
+      };
+      state.meetingPoint = null;
+      state.cycleDetected = false;
     },
     setCurrentNodeData: (state: AnimationState, action: PayloadAction<ListNodeData[]>) => {
       state.currentNodeData = action.payload;
@@ -114,6 +132,43 @@ export const animationSlice = createSlice({
     },
     setCurrentStep: (state: AnimationState, action: PayloadAction<number>) => {
       state.currentStep = action.payload;
+    },
+    // 环检测相关 reducers
+    setCyclePointers: (state: AnimationState, action: PayloadAction<{
+      fast?: number | null;
+      slow?: number | null;
+    }>) => {
+      state.cyclePointers = {
+        ...state.cyclePointers,
+        ...action.payload
+      };
+    },
+    setCycleConfig: (state: AnimationState, action: PayloadAction<{
+      entryPoint?: number | null;
+      nodeCount?: number;
+    }>) => {
+      state.cycleConfig = {
+        ...state.cycleConfig,
+        ...action.payload
+      };
+    },
+    setMeetingPoint: (state: AnimationState, action: PayloadAction<number | null>) => {
+      state.meetingPoint = action.payload;
+    },
+    setCycleDetected: (state: AnimationState, action: PayloadAction<boolean>) => {
+      state.cycleDetected = action.payload;
+    },
+    resetCycleDetection: (state: AnimationState) => {
+      state.currentStep = 0;
+      state.isPlaying = false;
+      state.cyclePointers = {
+        fast: null,
+        slow: null
+      };
+      state.meetingPoint = null;
+      state.cycleDetected = false;
+      state.stepDescription = '';
+      state.currentEventType = '';
     }
   }
 });
@@ -135,7 +190,13 @@ export const {
   setCallStack,
   setStepDescription,
   setCurrentEventType,
-  setCurrentStep
+  setCurrentStep,
+  // 环检测相关
+  setCyclePointers,
+  setCycleConfig,
+  setMeetingPoint,
+  setCycleDetected,
+  resetCycleDetection
 } = animationSlice.actions;
 
 // 导出reducer

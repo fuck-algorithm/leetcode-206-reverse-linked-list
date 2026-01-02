@@ -22,9 +22,10 @@ const LinkedListAnimation: React.FC = () => {
     // 简化控制器创建，不再依赖getState函数
     controllerRef.current = new AnimationController(dispatch);
     
-    // 加载示例数据
+    // 加载示例数据（仅支持 iterative 和 recursive）
     const initialNodes = generateLinkedList(5);
-    controllerRef.current.loadData(initialNodes, animationMethod);
+    const method = animationMethod === 'cycle-detection' ? 'iterative' : animationMethod;
+    controllerRef.current.loadData(initialNodes, method);
     
     return () => {
       if (controllerRef.current) {
@@ -55,9 +56,10 @@ const LinkedListAnimation: React.FC = () => {
   useEffect(() => {
     if (!controllerRef.current) return;
     
-    // 重新加载数据
+    // 重新加载数据（仅支持 iterative 和 recursive）
     const nodes = generateLinkedList(5);
-    controllerRef.current.loadData(nodes, animationMethod);
+    const method = animationMethod === 'cycle-detection' ? 'iterative' : animationMethod;
+    controllerRef.current.loadData(nodes, method);
   }, [animationMethod]);
   
 

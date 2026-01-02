@@ -9,6 +9,7 @@ import {
   setCurrentStep,
 } from '../store/animationSlice';
 import { useAnimationController } from '../contexts/AnimationControllerContext';
+import { getAnimationSpeed, saveAnimationSpeed } from '../utils/userPreferences';
 import '../styles/ControlPanel.css';
 
 interface ControlPanelProps {
@@ -21,6 +22,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ className = '' }) => {
   );
   const dispatch = useDispatch();
   const { controllerRef } = useAnimationController();
+
+  // 加载保存的播放速度
+  useEffect(() => {
+    getAnimationSpeed().then(speed => {
+      dispatch(setAnimationSpeed(speed));
+    });
+  }, [dispatch]);
 
   const handlePlayPause = useCallback(() => {
     if (isPlaying) {
@@ -41,6 +49,13 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ className = '' }) => {
       controllerRef.current.stepBackward();
     }
   }, [controllerRef, isPlaying, currentStep]);
+
+  const handleReset = useCallback(() => {
+    if (controllerRef.current) {
+      controllerRef.current.resetAnimation();
+    }
+    dispatch(resetAnimation());
+  }, [controllerRef, dispatch]);
 
   // 键盘快捷键
   useEffect(() => {
@@ -63,22 +78,24 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ className = '' }) => {
           e.preventDefault();
           handleStepForward();
           break;
+        case 'r': // R键 - 重置
+        case 'R':
+          e.preventDefault();
+          if (!isPlaying) {
+            handleReset();
+          }
+          break;
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handlePlayPause, handleStepForward, handleStepBackward]);
-
-  const handleReset = () => {
-    if (controllerRef.current) {
-      controllerRef.current.resetAnimation();
-    }
-    dispatch(resetAnimation());
-  };
+  }, [handlePlayPause, handleStepForward, handleStepBackward, handleReset, isPlaying]);
 
   const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    dispatch(setAnimationSpeed(Number(e.target.value)));
+    const speed = Number(e.target.value);
+    dispatch(setAnimationSpeed(speed));
+    saveAnimationSpeed(speed);
   };
 
   const handleProgressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,8 +141,9 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ className = '' }) => {
             <span className="btn-icon">⏭</span>
             <span className="btn-shortcut">→</span>
           </button>
-          <button onClick={handleReset} disabled={isPlaying} title="重置">
+          <button onClick={handleReset} disabled={isPlaying} title="重置 (R)">
             <span className="btn-icon">⟳</span>
+            <span className="btn-shortcut">R</span>
           </button>
         </div>
 
@@ -150,4 +168,4 @@ const ControlPanel: React.FC<ControlPanelProps> = ({ className = '' }) => {
   );
 };
 
-export default ControlPanel; 
+export default ControlPanel;

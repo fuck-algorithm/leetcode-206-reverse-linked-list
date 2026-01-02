@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '../store';
 import { AnimationController } from '../controllers/AnimationController';
@@ -6,25 +6,35 @@ import { generateLinkedList } from '../utils/dataGenerator';
 import { AnimationControllerContext } from '../contexts/AnimationControllerContext';
 import RecursiveCanvas from '../components/RecursiveCanvas';
 import ControlPanel from '../components/ControlPanel';
-import JavaCodeViewer from '../components/JavaCodeViewer';
+import MultiLangCodeViewer from '../components/MultiLangCodeViewer';
+import DataInput from '../components/DataInput';
 import '../styles/PageLayout.css';
 
 const RecursivePage: React.FC = () => {
   const dispatch = useDispatch();
   const { isPlaying, animationSpeed } = useSelector((state: RootState) => state.animation);
   const controllerRef = useRef<AnimationController | null>(null);
+  const [currentData, setCurrentData] = useState<number[]>([1, 2, 3, 4, 5]);
+
+  const initializeAnimation = useCallback((values: number[]) => {
+    if (controllerRef.current) {
+      controllerRef.current.stopAnimation();
+    }
+    controllerRef.current = new AnimationController(dispatch);
+    const nodes = generateLinkedList(values.length, values);
+    controllerRef.current.loadData(nodes, 'recursive');
+  }, [dispatch]);
 
   useEffect(() => {
-    controllerRef.current = new AnimationController(dispatch);
-    const initialNodes = generateLinkedList(5);
-    controllerRef.current.loadData(initialNodes, 'recursive');
+    initializeAnimation(currentData);
 
     return () => {
       if (controllerRef.current) {
         controllerRef.current.stopAnimation();
       }
     };
-  }, [dispatch]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!controllerRef.current) return;
@@ -40,6 +50,11 @@ const RecursivePage: React.FC = () => {
     controllerRef.current.changeSpeed(animationSpeed, isPlaying);
   }, [animationSpeed, isPlaying]);
 
+  const handleDataChange = useCallback((values: number[]) => {
+    setCurrentData(values);
+    initializeAnimation(values);
+  }, [initializeAnimation]);
+
   return (
     <AnimationControllerContext.Provider value={{ controllerRef }}>
       <div className="page-container">
@@ -48,13 +63,19 @@ const RecursivePage: React.FC = () => {
           <p>递归到链表末尾，然后在回溯过程中反转指针</p>
         </div>
 
+        <DataInput 
+          onDataChange={handleDataChange} 
+          currentData={currentData}
+          dataType="linked-list"
+        />
+
         <div className="animation-area">
           <RecursiveCanvas />
         </div>
 
         <ControlPanel className="page-controls" />
 
-        <JavaCodeViewer method="recursive" />
+        <MultiLangCodeViewer method="recursive" />
       </div>
     </AnimationControllerContext.Provider>
   );
