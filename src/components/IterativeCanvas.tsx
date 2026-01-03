@@ -386,8 +386,9 @@ const IterativeCanvas: React.FC = () => {
     );
   };
 
-  // 渲染每个节点左右两侧的 prev/next 指针状态
-  // 每个节点自己的 prev 在自己左边，自己的 next 在自己右边
+  // 渲染每个节点左右两侧的指针状态
+  // 左边：显示"谁指向这个节点"（入边）
+  // 右边：显示"这个节点指向谁"（出边，即 node.next）
   const renderNodePointerStates = () => {
     const states: React.ReactElement[] = [];
     
@@ -395,68 +396,68 @@ const IterativeCanvas: React.FC = () => {
       const pos = nodePositions.get(node.id);
       if (!pos) return;
       
-      // 获取该节点的 prev 值（指向它的前一个节点）
-      const prevNode = currentNodeData.find((n: ListNodeData) => n.next === node.id);
-      const prevValue = prevNode ? prevNode.value : null;
+      // 左边方框：显示"谁指向这个节点"（查找 next === node.id 的节点）
+      const incomingNode = currentNodeData.find((n: ListNodeData) => n.next === node.id);
+      const incomingValue = incomingNode ? incomingNode.value : null;
       
-      // 获取该节点的 next 值
-      const nextNode = node.next !== null ? currentNodeData.find((n: ListNodeData) => n.id === node.next) : null;
-      const nextValue = nextNode ? nextNode.value : null;
+      // 右边方框：显示"这个节点指向谁"（即 node.next）
+      const outgoingNode = node.next !== null ? currentNodeData.find((n: ListNodeData) => n.id === node.next) : null;
+      const outgoingValue = outgoingNode ? outgoingNode.value : null;
       
-      // prev 在节点左边
-      const prevX = pos.x - boxOffset;
-      // next 在节点右边
-      const nextX = pos.x + boxOffset;
+      // 入边方框在节点左边
+      const inX = pos.x - boxOffset;
+      // 出边方框在节点右边
+      const outX = pos.x + boxOffset;
       
       states.push(
         <g key={`node-state-${node.id}`} className="node-pointer-state">
-          {/* prev 值 - 节点左边 */}
-          <g className="prev-indicator">
+          {/* 入边值 - 节点左边（谁指向我） */}
+          <g className="incoming-indicator">
             <rect 
-              x={prevX - boxSize / 2} 
+              x={inX - boxSize / 2} 
               y={pos.y - boxSize / 2} 
               width={boxSize} 
               height={boxSize} 
               rx={4} 
-              fill={prevValue === null ? '#ffebee' : '#f3e5f5'}
-              stroke={prevValue === null ? '#f44336' : '#9c27b0'}
+              fill={incomingValue === null ? '#fafafa' : '#e8f5e9'}
+              stroke={incomingValue === null ? '#bdbdbd' : '#4caf50'}
               strokeWidth={1.5}
             />
             <text 
-              x={prevX} 
+              x={inX} 
               y={pos.y + 5} 
               textAnchor="middle" 
               fontSize="12px" 
               fontFamily="monospace"
-              fill={prevValue === null ? '#f44336' : '#9c27b0'}
+              fill={incomingValue === null ? '#9e9e9e' : '#2e7d32'}
               fontWeight="bold"
             >
-              {prevValue === null ? '∅' : prevValue}
+              {incomingValue === null ? '∅' : incomingValue}
             </text>
           </g>
           
-          {/* next 值 - 节点右边 */}
-          <g className="next-indicator">
+          {/* 出边值 - 节点右边（我指向谁） */}
+          <g className="outgoing-indicator">
             <rect 
-              x={nextX - boxSize / 2} 
+              x={outX - boxSize / 2} 
               y={pos.y - boxSize / 2} 
               width={boxSize} 
               height={boxSize} 
               rx={4} 
-              fill={nextValue === null ? '#ffebee' : '#fff3e0'}
-              stroke={nextValue === null ? '#f44336' : '#ff9800'}
+              fill={outgoingValue === null ? '#fafafa' : '#fff3e0'}
+              stroke={outgoingValue === null ? '#bdbdbd' : '#ff9800'}
               strokeWidth={1.5}
             />
             <text 
-              x={nextX} 
+              x={outX} 
               y={pos.y + 5} 
               textAnchor="middle" 
               fontSize="12px" 
               fontFamily="monospace"
-              fill={nextValue === null ? '#f44336' : '#ff9800'}
+              fill={outgoingValue === null ? '#9e9e9e' : '#e65100'}
               fontWeight="bold"
             >
-              {nextValue === null ? '∅' : nextValue}
+              {outgoingValue === null ? '∅' : outgoingValue}
             </text>
           </g>
         </g>
