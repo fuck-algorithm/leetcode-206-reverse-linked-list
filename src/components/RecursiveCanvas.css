@@ -1,0 +1,85 @@
+.recursive-canvas-container {
+  background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
+  border-radius: 8px;
+}
+
+.recursive-canvas-container svg {
+  overflow: visible;
+}
+
+/* 深度标签动画 */
+.depth-label circle {
+  transition: all 0.3s ease;
+}
+
+.depth-label:hover circle {
+  transform: scale(1.1);
+}
+
+/* 调用栈样式 */
+.call-stack rect {
+  transition: all 0.2s ease;
+}
+
+.call-stack rect:hover {
+  filter: brightness(0.95);
+}
+
+/* 操作标签动画 */
+.action-label rect {
+  transition: all 0.3s ease;
+}
+
+/* 节点指针状态 */
+.node-pointer-state rect {
+  transition: all 0.2s ease;
+}
+
+.node-pointer-state:hover rect {
+  filter: brightness(0.95);
+}
+
+/* 连接线动画 */
+.connections line,
+.connections path {
+  transition: all 0.3s ease;
+}
+
+/* 反转指示器动画 */
+.reverse-indicator path {
+  animation: dash 1s linear infinite;
+}
+
+@keyframes dash {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* 断开指示器动画 */
+.break-indicator line {
+  animation: pulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.7;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* newHead标签 */
+.newhead-label text {
+  transition: all 0.3s ease;
+}
+
+/* 状态面板 */
+.state-panel rect {
+  transition: all 0.2s ease;
+}
+
+.state-panel:hover rect {
+  filter: brightness(0.98);
+}
